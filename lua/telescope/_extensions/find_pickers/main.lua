@@ -57,9 +57,17 @@ M.find_pickers = function(opts)
 
                 actions.close(prompt_bufnr)
                 if builtin_pickers[value] ~= nil then
-                    builtin_pickers[value](vim.tbl_extend('keep', opts_pickers, plugin_opts.value))
+                    if plugin_opts[value] ~= nil then
+                        builtin_pickers[value](opts_pickers)
+                    else
+                        builtin_pickers[value](vim.tbl_extend('keep', opts_pickers, plugin_opts.value))
+                    end
                 elseif extensions_pickers.manager[value] ~= nil then
-                    extensions_pickers.manager[value][value](vim.tbl_extend('keep', opts_pickers, plugin_opts.value))
+                    if plugin_opts[value] ~= nil then
+                        extensions_pickers.manager[value][value](opts_pickers)
+                    else
+                        extensions_pickers.manager[value][value](vim.tbl_extend('keep', opts_pickers, plugin_opts.value))
+                    end
                 end
             end)
             return true
