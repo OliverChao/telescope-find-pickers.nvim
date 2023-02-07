@@ -14,11 +14,9 @@ local M = {}
 
 M.setup = function(setup_config) end
 
-
 -- This creates a picker with a list of all of the pickers
 M.find_pickers = function(opts)
     local opts_find_pickers = opts or themes.get_dropdown(opts)
-
     local opts_pickers = {
         bufnr = vim.api.nvim_get_current_buf(),
         winnr = vim.api.nvim_get_current_win(),
@@ -26,21 +24,26 @@ M.find_pickers = function(opts)
 
     -- Variables that setup can change
     local result_table = {}
-    local builtin_list = vim.tbl_keys(builtin_pickers)
-    local extensions_list = vim.tbl_keys(extensions_pickers.manager)
+
     local excluded = extensions_pickers._config.find_pickers.excluded or {}
     local plugin_opts = extensions_pickers._config.find_pickers.opts or {}
 
-    for i, item in ipairs(builtin_list) do
-        if not (vim.tbl_contains(excluded, item))
-        then
-            table.insert(result_table, i, item)
+
+    for name, item in pairs(builtin_pickers) do
+        if not (vim.tbl_contains(excluded, name)) then
+            result_table[name] = {
+                action = item or function() end,
+                opt = plugin_opts.name or opts_pickers,
+            }
         end
     end
-    for i, item in ipairs(extensions_list) do
-        if not (vim.tbl_contains(excluded, item))
-        then
-            table.insert(result_table, i, item)
+
+    for name, item in pairs(extensions_pickers.manager) do
+        if not (vim.tbl_contains(excluded, name)) then
+            result_table[name] = {
+                action = item[name] or function() end,
+                opt = plugin_opts.name or opts_pickers,
+            }
         end
     end
 
@@ -48,7 +51,7 @@ M.find_pickers = function(opts)
         prompt_title = "Find Pickers",
         results_title = "Picker",
         finder = finders.new_table({
-            results = result_table,
+            results = vim.tbl_keys(result_table),
         }),
         attach_mappings = function(prompt_bufnr, map)
             actions.select_default:replace(function()
@@ -56,19 +59,7 @@ M.find_pickers = function(opts)
                 local value = selection.value
 
                 actions.close(prompt_bufnr)
-                if builtin_pickers[value] ~= nil then
-                    if plugin_opts[value] ~= nil then
-                        builtin_pickers[value](vim.tbl_extend('keep', opts_pickers, plugin_opts[value]))
-                    else
-                        builtin_pickers[value](opts_pickers)
-                    end
-                elseif extensions_pickers.manager[value] ~= nil then
-                    if plugin_opts[value] ~= nil then
-                        extensions_pickers.manager[value][value](vim.tbl_extend('keep', opts_pickers, plugin_opts[value]))
-                    else
-                        extensions_pickers.manager[value][value](opts_pickers)
-                    end
-                end
+                result_table[value].action(result_table[value].opts)
             end)
             return true
         end,
