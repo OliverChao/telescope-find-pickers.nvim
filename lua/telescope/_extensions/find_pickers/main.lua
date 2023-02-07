@@ -29,7 +29,7 @@ M.find_pickers = function(opts)
     local builtin_list = vim.tbl_keys(builtin_pickers)
     local extensions_list = vim.tbl_keys(extensions_pickers.manager)
     local excluded = extensions_pickers._config.find_pickers.excluded or {}
-    local opts = extensions_pickers._config.find_pickers.opts or {}
+    local plugin_opts = extensions_pickers._config.find_pickers.opts or {}
 
     for i, item in ipairs(builtin_list) do
         if not (vim.tbl_contains(excluded, item))
@@ -57,9 +57,9 @@ M.find_pickers = function(opts)
 
                 actions.close(prompt_bufnr)
                 if builtin_pickers[value] ~= nil then
-                    builtin_pickers[value](vim.tbl.extend('keep',opts_pickers,opts.value))
+                    builtin_pickers[value](vim.tbl.extend('keep', opts_pickers, plugin_opts.value))
                 elseif extensions_pickers.manager[value] ~= nil then
-                    extensions_pickers.manager[value][value](vim.tbl.extend('keep',opts_pickers,opts.value))
+                    extensions_pickers.manager[value][value](vim.tbl.extend('keep', opts_pickers, plugin_opts.value))
                 end
             end)
             return true
