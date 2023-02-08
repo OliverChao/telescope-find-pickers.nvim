@@ -27,13 +27,14 @@ M.find_pickers = function(opts)
 
     local excluded = extensions_pickers._config.find_pickers.excluded or {}
     local plugin_opts = extensions_pickers._config.find_pickers.opts or {}
+    print(vim.inspect(plugin_opts))
 
 
     for name, item in pairs(builtin_pickers) do
         if not (vim.tbl_contains(excluded, name)) then
             result_table[name] = {
                 action = item or function() end,
-                opt = plugin_opts.name or opts_pickers,
+                opt = plugin_opts[name] or opts_pickers,
             }
         end
     end
@@ -42,7 +43,7 @@ M.find_pickers = function(opts)
         if not (vim.tbl_contains(excluded, name)) then
             result_table[name] = {
                 action = item[name] or function() end,
-                opt = plugin_opts.name or opts_pickers,
+                opt = plugin_opts[name] or opts_pickers,
             }
         end
     end
@@ -59,7 +60,7 @@ M.find_pickers = function(opts)
                 local value = selection.value
 
                 actions.close(prompt_bufnr)
-                result_table[value].action(result_table[value].opts)
+                result_table[value].action(result_table[value].opt)
             end)
             return true
         end,
