@@ -58,10 +58,16 @@ M.find_pickers = function(opts)
       attach_mappings = function(prompt_bufnr, map)
         actions.select_default:replace(function()
           local selection = actions_state.get_selected_entry()
-          local value = selection.value
+          if selection == nil then
+            vim.notify("no such a picker")
+            return
+          end
 
+          local value = selection.value
           actions.close(prompt_bufnr)
-          result_table[value].action(result_table[value].opt)
+          if result_table[value] ~= nil then
+            result_table[value].action(result_table[value].opt)
+          end
         end)
         return true
       end,
