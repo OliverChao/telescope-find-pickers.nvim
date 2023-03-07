@@ -13,8 +13,6 @@ local plugin_opts = extensions_pickers._config.find_pickers.opts or {}
 local funcs = extensions_pickers._config.find_pickers.actions or {}
 local user_pickers = extensions_pickers._config.find_pickers.user_pickers or {}
 
-vim.pretty_print(user_pickers)
-
 for _, v in ipairs(user_pickers) do
   result_table[v[1]] = {
     action = v[2],
